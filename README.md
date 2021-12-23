@@ -1,8 +1,6 @@
-Setup my clash router
-==========================
+# Setup my clash router #
 
-Setup switch (Mercury SG105pro)
-----------------
+# Setup switch (Mercury SG105pro)
 
 This switch support 802.1Q vpn, here is my settings:
 
@@ -46,11 +44,12 @@ disconnected and don't have a chance to click the save button. Thus the
 only thing you can do is power off and on SG105pro, to have the old
 setting will bring up.
 
-Install armbian and docker(Phicomm N1)
---------------------------------------
+# Install armbian and docker(Phicomm N1)
+
 There are a lot of instructions, pick one fit you needs.
 
-###  Here are some ref links:
+Here are some ref links:
+
 - [docker 中运行 openwrt](https://github.com/lisaac/openwrt-in-docker)
 - another[docker 运行 openwrt](https://github.com/luoqeng/OpenWrt-on-Docker)
 - [Use macvlan networks](https://docs.docker.com/network/macvlan/)
@@ -61,10 +60,10 @@ There are a lot of instructions, pick one fit you needs.
 - [engineerlzk 的CSDN博客](https://me.csdn.net/engineerlzk)
 - [我在用的armbian版本](https://github.com/kuoruan/Build-Armbian/releases/tag/v5.99-20200408)
 
-Armbian settings
-----------------
+# Armbian settings
 
-### Upstream ethernet connection
+## Upstream ehternet
+
 My upstream ethernet connection is automatic set to dhcp, here is partial of my `/etc/network/interface`:
 
 ```
@@ -73,18 +72,18 @@ no-auto-down eth0
 iface eth0 inet dhcp
 ```
 
-### Remove networkmanager
+## Remove networkmanager
 
 Networkmanager is not needed, and it automatic delete my static ip
 settings, as my nic has both dhcp and static ips, and dhcp server
 temporary unavailable.
 
-### Setup vlan
+## Setup vlan
 
 Create a systemd service to bring up macvlan interface each time the system boots.
 Refer to `host-service` directory for details.
 
-### TODOS:
+## TODOS:
 
 - [ ] explain why a vlan is needed, difference between vlan and dual-ips.
 - [ ] explain why a script is needed, instead of network configure file.
