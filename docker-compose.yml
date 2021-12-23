@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  dhcpd:
+    image: chenxinaz/dhcpd
+    volumes:
+      - ./volume/dhcp:/etc/dhcp
+    network_mode: host
+    restart: unless-stopped
+    entrypoint: ['/usr/sbin/dhcpd', '-4', '-f']
+  clash:
+    image: chenxinaz/clash:alpine
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./volume/clash:/clash
+    network_mode: host
+    restart: unless-stopped
+    entrypoint: ['/clash/entrypoint.sh']

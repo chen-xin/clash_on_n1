@@ -1,0 +1,21 @@
+# apt remove network-manager -y
+
+# chomd +x setup-macvlan.sh
+# sudo cp setup-macvlan.sh /usr/local/bin
+# sudo chown root:root /usr/local/bin/setup-macvlan.sh
+# 
+# sudo cp setup-macvlan.service /etc/systemd/system/
+# sudo systemctl daemon-reload
+# sudo systemctl enable setup-macvlan.service
+
+[Unit]
+Description=fuck those who dont want vlan persistant
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /usr/local/bin/setup-macvlan.sh
+TimeoutStartSec=0
+
+[Install]
+WantedBy=default.target
