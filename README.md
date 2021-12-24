@@ -1,5 +1,20 @@
 # Setup my clash router #
 
+My network architecture be like:
+```
+wan1:China Telecomm
+       |     wan2: reserved
+   +===|======|==========================+
+   |   |      |    Mercury SG105pro      |
+   |  (1)    (2)    (3)    (4)    (5)    |
+   |                 |      |      |     |
+   +=================|======|======|=====+
+              PhicommN1     |      |
+          downsteam wifi router    |
+                      Desktop computer
+```
+
+
 # Setup switch (Mercury SG105pro)
 
 This switch support 802.1Q vpn, here is my settings:
@@ -60,6 +75,19 @@ Here are some ref links:
 - [engineerlzk 的CSDN博客](https://me.csdn.net/engineerlzk)
 - [我在用的armbian版本](https://github.com/kuoruan/Build-Armbian/releases/tag/v5.99-20200408)
 
+## Config docker log
+
+It's recommended to limit docker daemon's log size, or you will soon runout of disk space.
+Modify your `/etc/docker/daemon.json` like the following:
+
+```
+{
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"],
+        "log-driver": "json-file",
+          "log-opts": {"max-size":"100m", "max-file":"3"}
+}
+```
+
 # Armbian settings
 
 ## Upstream ehternet
@@ -88,7 +116,7 @@ Refer to `host-service` directory for details.
 - [ ] explain why a vlan is needed, difference between vlan and dual-ips.
 - [ ] explain why a script is needed, instead of network configure file.
 
-# Docker settings
+# Docker dhcpd and clash service settings
 
 - Create dhcpd image as `dhcpd/Dockerfile`
 - Create clash image as `clash/Dockerfile`
