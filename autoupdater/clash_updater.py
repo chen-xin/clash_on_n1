@@ -89,7 +89,7 @@ if __name__ == '__main__':
     '''
 
     GAME_REGX = 'game_candidate_regx'
-    conf = read_config_yaml('./autoupdater/conf/providers.yaml')
+    conf = read_config_yaml('./data/providers.yaml')
     proxy_groups = read_config_yaml('./autoupdater/conf/_proxy-groups.yaml')['proxy-groups']
     proxy_groups_fixed = read_config_yaml('./autoupdater/conf/_proxy-groups_fixed.yaml')['proxy-groups']
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     first5_cheap_proxies = [
         x['name'] for provider in providers
         for x in sort_proxy_by_rate(provider['order_regx'], provider['proxies'])[:5]
-    ] 
+    ]
 
     for provider in providers:
         print(provider['name'], len(provider['proxies']))
@@ -117,12 +117,28 @@ if __name__ == '__main__':
     get_first5_game_proxies = lambda x: [i for i in filter(lambda y: re.search(x[GAME_REGX], y['name']), x['proxies'])][:5]
     first6_game_proxies = [ x['name'] for p in providers for x in get_game_proxies(p[GAME_REGX], p['proxies'])[:6] ]
 
-    print(first5_cheap_proxies)
+    # print(first5_cheap_proxies)
     print(first6_game_proxies )
 
     get_group_name = lambda x: [v['name'] for v in x]
     all_group_names = get_group_name(providers) + get_group_name(proxy_groups) + get_group_name(proxy_groups_fixed)
-    
 
-
-    
+# - INSERT PRIOR_PROXIES
+# - INSERT ALL_PROVIDERS
+# - INSERT GAME_PROXIES
+    # print(all_group_names)
+    for g in proxy_groups:
+        gproxies = []
+        for p in g['proxies']:
+            print('[%s]'%p)
+            if p in all_group_names:
+                gproxies.append(p)
+            elif p == 'INSERT PRIOR_PROXIES':
+                gproxies += first5_cheap_proxies
+            elif p == 'INSERT ALL_PROVIDERS':
+                gproxies += [provider['name'] for provider in providers]
+            elif p == 'INSERT GAME_PROXIES':
+                print('=============')
+                gproxies += first6_game_proxies
+        g['proxies'] = gproxies
+    print(proxy_groups)

@@ -21,7 +21,7 @@ proxy-groups:
   - name: 🎮 GameEU
     type: select
     proxies:
-      - INSERT GAME_GROUPS
+      - INSERT GAME_PROXIES
       - INSERT ALL_PROVIDERS
       - something you don't know
       - other things you don't know
