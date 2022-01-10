@@ -98,12 +98,13 @@ if __name__ == '__main__':
 
     GAME_REGX = 'game_candidate_regx'
     # provider_conf = read_config_yaml('./autoupdater/conf/providers-sample.yaml')
-    provider_conf = read_config_yaml('./autoupdater/data/providers.yaml')
-    configure = read_config_yaml('./autoupdater/conf/_config.yaml')
-    configure_cfw = read_config_yaml('./autoupdater/conf/_config.cfw.yaml')
-    proxy_groups = read_config_yaml('./autoupdater/conf/_proxy-groups.yaml')['proxy-groups']
-    proxy_groups_fixed = read_config_yaml('./autoupdater/conf/_proxy-groups_fixed.yaml')['proxy-groups']
-    additional_rules = read_config_yaml('./autoupdater/conf/_additional_rules.yaml')['rules']
+    updater_conf = read_config_yaml('./autoupdater/conf/config.yaml')
+    provider_conf = updater_conf['providers']
+    configure_cfw = updater_conf['config']
+    configure = {  **updater_conf['config'], **updater_conf['config_server'] }
+    proxy_groups = updater_conf['proxy-groups']
+    proxy_groups_fixed = updater_conf['proxy-groups-fixed']
+    additional_rules = updater_conf['additional_rules']
 
     providers = []
     provider_rules = []
@@ -175,5 +176,9 @@ if __name__ == '__main__':
         c['proxies'] = all_proxies
         c['proxy-groups'] = proxy_groups + providers + proxy_groups_fixed
         c['rules'] = additional_rules + provider_rules
-    save_config_yaml(configure, './autoupdater/data/config.yaml')
-    save_config_yaml(configure_cfw, './autoupdater/data/config_cfw.yaml')
+
+    if 'output-server' in updater_conf:
+        save_config_yaml(configure, updater_conf['output-server'])
+    if 'output-cfw' in updater_conf:
+        save_config_yaml(configure_cfw, updater_conf['output-cfw'])
+

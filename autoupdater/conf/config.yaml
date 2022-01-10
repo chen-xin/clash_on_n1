@@ -1,0 +1,224 @@
+####################################################################
+#  Sample config file
+####################################################################
+output-cfw: autoupdater/data/config_cfw1.yaml
+output-server: autoupdater/data/config1.yaml
+providers:
+  - name: edu.lovess.top_20251210
+    url: http://localhost:8000/1625538106859.yml
+    expire: 2025-12-10
+    use_rules: true
+    type: fallback
+    test_url: "http://www.gstatic.com/generate_204"
+    interval: 500
+    sample_names:
+    - 🇭🇰 HK NetFlix CU104.17.12.28·1#20|0.8:1|49
+    order_regx: \|\d(\.\d)?:\d(\.\d)?\|
+    game_candidate_regx:
+    - 🇸🇬 SG
+  - name: haojiahuo_20220622
+    url: http://localhost:8000/1625537897280_.yml
+    expire: 2022-06-22
+    sample_names:
+    - 🇹🇼 台湾-流媒体优化1[X1.0]
+    order_regx: \[X\d(\.\d)?\]
+    game_candidate_regx: 
+    - (德国|法国|意大利|荷兰)
+    - (香港|新加坡|狮城)
+  - name: 厘米_20210315
+    url: http://localhost:8000/1614092014120.yml
+    expire: 2022-03-15
+    sample_names:
+    - 俄罗斯A·0.5
+    order_regx: ·\d(\.\d)?
+    game_candidate_regx: 
+    - (德国|法国|意大利|荷兰|伦敦)
+    - (香港|新加坡|狮城)
+
+config:
+  # scp % xin@192.168.10.5:/home/xin/projects/PhicommN1
+  # (sed -n '1,/^proxies:/p' $1; sed '1,/^proxies:/d' $2) | cat
+  # HTTP 端口
+  port: 7890
+
+  # SOCKS5 端口
+  socks-port: 7891
+
+  # Linux 及 macOS 的 redir 端口
+  # redir-port: 7892
+
+  allow-lan: false
+
+  # Only applicable when setting allow-lan to true
+  # "*": bind all IP addresses
+  # 192.168.122.11: bind a single IPv4 address
+  # "[aaaa::a8aa:ff:fe09:57d8]": bind a single IPv6 address
+  # bind-address: "*"
+
+  # Rule / Global/ Direct (默认为 Rule 模式)
+  mode: Rule
+
+  # 设置日志等级 (默认为 info)
+  # info / warning / error / debug / silent
+  log-level: info
+
+  # RESTful API for clash
+  external-controller: 127.0.0.1:9090
+
+  # you can put the static web resource (such as clash-dashboard) to a directory, and clash would serve in `${API}/ui`
+  # input is a relative path to the configuration directory or an absolute path
+  # external-ui: folder
+
+  # RESTful API 的口令 (可选)
+  # secret: ""
+
+  # experimental feature
+  experimental:
+    ignore-resolve-fail: true # ignore dns resolve fail, default value is true
+
+  # authentication of local SOCKS5/HTTP(S) server
+  # authentication:
+  #  - "user1:pass1"
+  #  - "user2:pass2"
+
+  # # experimental hosts, support wildcard (e.g. *.clash.dev Even *.foo.*.example.com)
+  # # static domain has a higher priority than wildcard domain (foo.example.com > *.example.com)
+  # hosts:
+  #   '*.clash.dev': 127.0.0.1
+  #   'alpha.clash.dev': '::1'
+
+  # DNS 设置
+  # dns:
+  #   enable: true
+  #   listen: 0.0.0.0:53
+  #   enhanced-mode: fake-ip
+  #   nameserver:
+  #    - 119.29.29.29
+  #    - 223.5.5.5
+config_server:
+  #############################################################
+  #
+  # The following configures will merged into 'config' section
+  # for proxy gateway server
+  #
+  #############################################################
+  redir-port: 7892
+  # resolv my own server
+  hosts:
+     '+.xin.me': 192.168.211.1  
+  # DNS 设置
+  dns:
+    enable: true
+    listen: '0.0.0.0:53'
+    enhanced-mode: fake-ip
+    # enhanced-mode: redir-host
+    nameserver:
+      - 114.114.114.114
+      - 119.29.29.29
+      - 223.5.5.5
+    fallback:
+      - 'tls://1.1.1.1:853'
+      - 'tls://1.0.0.1:853'
+      - 'tls://dns.google'
+
+  allow-lan: true
+  # Only applicable when setting allow-lan to true
+  # "*": bind all IP addresses
+  # 192.168.122.11: bind a single IPv4 address
+  # "[aaaa::a8aa:ff:fe09:57d8]": bind a single IPv6 address
+  # bind-address: "*"
+  
+  # RESTful API for clash
+  external-controller: 0.0.0.0:9090
+
+additional_rules:
+  # HBO美国
+  - DOMAIN-SUFFIX,hbo.com,🇺🇲美国专线
+  - DOMAIN-SUFFIX,hbogo.com,🇺🇲美国专线
+  - DOMAIN-SUFFIX,hbonow.com,🇺🇲美国专线
+  - DOMAIN-SUFFIX,hbomax.com,🇺🇲美国专线
+  - DOMAIN-SUFFIX,play.hbonow.com.c.footprint.net,🇺🇲美国专线 
+  # warmane
+  - DOMAIN-SUFFIX,warmane.com,🎮 GameEU
+  - GEOIP,FR,🎮 GameEU
+  # tauri wow
+  - GEOIP,HU,🎮 GameEU
+proxy-groups:
+    # 138,164s/  - {"\?name"\?: \?"\?\([^"]\+\).\+/  - "\1"/g
+    # 🧭
+  - name: 🔰 节点选择
+    type: select
+    interval: 500
+    proxies:
+      - 🧭 自动选择
+      - INSERT ALL_PROVIDERS
+      - 🎯 全球直连
+
+  - name: 🧭 自动选择
+    type: fallback
+    url: "http://www.gstatic.com/generate_204"
+    interval: 500
+    proxies:
+      - INSERT PRIOR_PROXIES
+      - INSERT ALL_PROVIDERS
+      - 🎯 全球直连
+
+  - name: 🎮 GameEU
+    type: select
+    proxies:
+      - INSERT GAME_PROXIES
+      - INSERT ALL_PROVIDERS
+      - something you don't know
+      - other things you don't know
+      - 🎯 全球直连
+
+      # edu.lovess.top
+      # 120,147s/name: "\([^",]\+\)/name: ""\1"/g"
+
+  - name: 🇺🇲美国专线
+    type: fallback
+    url: "http://www.gstatic.com/generate_204"
+    interval: 500
+    proxies:
+      - 🔰 节点选择
+      - 🎯 全球直连
+proxy-groups-fixed:
+  - name: 🌍 国外媒体
+    type: select
+    proxies:
+      - 🔰 节点选择
+      - 🎯 全球直连
+  - name: 🌏 国内媒体
+    type: select
+    proxies:
+      - 🎯 全球直连
+      - 🔰 节点选择
+  - name: Ⓜ️ 微软服务
+    type: select
+    proxies:
+      - 🎯 全球直连
+      - 🔰 节点选择
+  - name: 📲 电报信息
+    type: select
+    proxies:
+      - 🔰 节点选择
+      - 🎯 全球直连
+  - name: 🍎 苹果服务
+    type: select
+    proxies:
+      - 🎯 全球直连
+      - 🔰 节点选择
+  - name: 🎯 全球直连
+    type: select
+    proxies:
+      - DIRECT
+  - name: 🛑 全球拦截
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+  - name: 🐟 漏网之鱼
+    type: select
+    proxies:
+      - 🔰 节点选择
+      - 🎯 全球直连
