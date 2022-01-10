@@ -7,5 +7,7 @@ rules:
   - DOMAIN-SUFFIX,hbomax.com,🇺🇲美国专线
   - DOMAIN-SUFFIX,play.hbonow.com.c.footprint.net,🇺🇲美国专线 
   # warmane
-  - DOMAIN-SUFFIX,warmane.com,🎮 warmane
-  - GEOIP,FR,🎮 warmane
+  - DOMAIN-SUFFIX,warmane.com,🎮 GameEU
+  - GEOIP,FR,🎮 GameEU
+  # tauri wow
+  - GEOIP,HU,🎮 GameEU

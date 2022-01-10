@@ -9,15 +9,20 @@ import urllib.request
 ###############################################################################
 # Utils
 ###############################################################################
-def log_wrapper(info):
+def log_wrapper(info, n=0):
     def log(fn):
         def f(*args, **kwargs):
-            print(datetime.now(), info, args, kwargs)
-            return fn(*args, **kwargs)
+            try:
+                result = fn(*args, **kwargs)
+                print(datetime.now(), info, args[n])
+            except:
+                print(datetime.now(), 'FAIL::', info, args[n])
+                raise
+            return result
         return f
     return log
 
-@log_wrapper('downloading')
+@log_wrapper('Downloading')
 def fetch_profile(url):
     req = urllib.request.Request(url=url, method='GET')
 
@@ -34,12 +39,14 @@ def fetch_profile(url):
 
     return result
 
+@log_wrapper('Load config')
 def read_config_yaml(filename):
     # with FileInput(files=(filename)) as input:
     with open(filename) as input:
         data = yaml.safe_load(input.read())
     return data
 
+@log_wrapper('Save config', 1)
 def save_config_yaml(data, filename):
     with open(filename, 'w', encoding='utf8') as output:
         yaml.dump(data, output, allow_unicode=True, sort_keys=False)
@@ -61,15 +68,16 @@ def sort_proxy_by_rate(pattern, proxies):
             rate = float([x for x in re.split(r'[^\d\.]', matched[0]) if x!=''][-1])
         except:
             rate = 1
-        print(p['name'], '----', pattern, matched, '===', rate)
+        # print(p['name'], '----', pattern, matched, '===', rate)
         proxy_list.append((rate, p))
     return [ x[1] for x in sorted(proxy_list, key = lambda a: a[0]) ]
 
 def get_game_proxies(patterns, proxies):
     proxy_list = []
+    pattern_regxes = [ re.compile(x) for x in patterns ]
     for p in proxies:
-        for index, pattern in enumerate(patterns):
-            if pattern.search(p['name']):
+        for index, pattern in enumerate(pattern_regxes):
+            if pattern.search(p):
                 proxy_list.append((index, p))
                 # proxy_list.append(p)
                 continue
@@ -89,36 +97,56 @@ if __name__ == '__main__':
     '''
 
     GAME_REGX = 'game_candidate_regx'
-    conf = read_config_yaml('./data/providers.yaml')
+    # provider_conf = read_config_yaml('./autoupdater/conf/providers-sample.yaml')
+    provider_conf = read_config_yaml('./autoupdater/data/providers.yaml')
+    configure = read_config_yaml('./autoupdater/conf/_config.yaml')
+    configure_cfw = read_config_yaml('./autoupdater/conf/_config.cfw.yaml')
     proxy_groups = read_config_yaml('./autoupdater/conf/_proxy-groups.yaml')['proxy-groups']
     proxy_groups_fixed = read_config_yaml('./autoupdater/conf/_proxy-groups_fixed.yaml')['proxy-groups']
+    additional_rules = read_config_yaml('./autoupdater/conf/_additional_rules.yaml')['rules']
 
     providers = []
-    for provider_conf in conf:
-        if provider_conf['expire'] > date.today():
-            data_yaml = fetch_profile(provider_conf['url'])
+    provider_rules = []
+    provider_game_proxies = []
+    all_proxies = []
+    for provider in provider_conf:
+        if provider['expire'] > date.today():
+            try:
+                data_yaml = fetch_profile(provider['url'])
+            except:
+                continue
             data = yaml.safe_load(data_yaml)
+
+            if len(provider_rules) == 0 and 'use_rules' in provider and provider['use_rules']:
+                provider_rules = data['rules']
+            sort_regx = re.compile(provider['order_regx'])
+            provider_proxies = [ x for x in sort_proxy_by_rate(sort_regx, data['proxies']) ]
+            provider_proxy_names =[ x['name'] for x in provider_proxies]
+            all_proxies += provider_proxies
+            # add fallback prior to select
+            if 'type' in provider and provider['type'] == 'fallback':
+                providers.append({
+                    'name': provider['name'] + '_FALLBACK',
+                    'proxies': provider_proxy_names,
+                    # 'rules': data['rules'],
+                    # 'game_proxies': [],
+                    'type': 'fallback',
+                    'url': provider['test_url'],
+                    'interval': provider['interval']
+                })
             providers.append({
-                'name': provider_conf['name'],
-                'proxies': data['proxies'],
-                'rules': data['rules'],
-                'order_regx': re.compile(provider_conf['order_regx']),
-                GAME_REGX: [ re.compile(x) for x in provider_conf[GAME_REGX] ]
+                'name': provider['name'],
+                'proxies': provider_proxy_names,
+                # 'game_proxies': get_game_proxies(provider[GAME_REGX], provider_proxies),
+                'type': 'select'
             })
+            provider_game_proxies.append(get_game_proxies(provider[GAME_REGX], provider_proxy_names))
 
-    first5_cheap_proxies = [
-        x['name'] for provider in providers
-        for x in sort_proxy_by_rate(provider['order_regx'], provider['proxies'])[:5]
-    ]
-
-    for provider in providers:
-        print(provider['name'], len(provider['proxies']))
-
-    get_first5_game_proxies = lambda x: [i for i in filter(lambda y: re.search(x[GAME_REGX], y['name']), x['proxies'])][:5]
-    first6_game_proxies = [ x['name'] for p in providers for x in get_game_proxies(p[GAME_REGX], p['proxies'])[:6] ]
+    first5_cheap_proxies = [ x for p in providers if p['type'] != 'fallback' for x in p['proxies'][:5] ]
+    first6_game_proxies = [ x for p in provider_game_proxies for x in p[:6] ]
 
     # print(first5_cheap_proxies)
-    print(first6_game_proxies )
+    # print(first6_game_proxies )
 
     get_group_name = lambda x: [v['name'] for v in x]
     all_group_names = get_group_name(providers) + get_group_name(proxy_groups) + get_group_name(proxy_groups_fixed)
@@ -130,7 +158,7 @@ if __name__ == '__main__':
     for g in proxy_groups:
         gproxies = []
         for p in g['proxies']:
-            print('[%s]'%p)
+            # print('[%s]'%p)
             if p in all_group_names:
                 gproxies.append(p)
             elif p == 'INSERT PRIOR_PROXIES':
@@ -138,7 +166,14 @@ if __name__ == '__main__':
             elif p == 'INSERT ALL_PROVIDERS':
                 gproxies += [provider['name'] for provider in providers]
             elif p == 'INSERT GAME_PROXIES':
-                print('=============')
                 gproxies += first6_game_proxies
         g['proxies'] = gproxies
-    print(proxy_groups)
+        # print(g['name'], g['proxies'])
+        # print('--------------------')
+
+    for c in [configure, configure_cfw]:
+        c['proxies'] = all_proxies
+        c['proxy-groups'] = proxy_groups + providers + proxy_groups_fixed
+        c['rules'] = additional_rules + provider_rules
+    save_config_yaml(configure, './autoupdater/data/config.yaml')
+    save_config_yaml(configure_cfw, './autoupdater/data/config_cfw.yaml')
