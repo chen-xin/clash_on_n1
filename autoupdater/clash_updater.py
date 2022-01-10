@@ -98,7 +98,10 @@ if __name__ == '__main__':
 
     GAME_REGX = 'game_candidate_regx'
     # provider_conf = read_config_yaml('./autoupdater/conf/providers-sample.yaml')
-    updater_conf = read_config_yaml('./autoupdater/conf/config.yaml')
+    try:
+        updater_conf = read_config_yaml('./autoupdater/config.yaml')
+    except:
+        updater_conf = read_config_yaml('./autoupdater/conf/config.yaml')
     provider_conf = updater_conf['providers']
     configure_cfw = updater_conf['config']
     configure = {  **updater_conf['config'], **updater_conf['config_server'] }
