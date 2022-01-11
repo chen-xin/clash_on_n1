@@ -1,8 +1,8 @@
 ####################################################################
 #  Sample config file
 ####################################################################
-output-cfw: autoupdater/data/config_cfw1.yaml
-output-server: autoupdater/data/config1.yaml
+output-cfw: autoupdater/data/config_cfw.yaml
+output-server: autoupdater/data/config.yaml
 providers:
   - name: edu.lovess.top_20251210
     url: http://localhost:8000/1625538106859.yml
