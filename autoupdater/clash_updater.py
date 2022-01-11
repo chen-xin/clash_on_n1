@@ -22,8 +22,8 @@ def log_wrapper(info, n=0):
         return f
     return log
 
-@log_wrapper('Downloading')
-def fetch_profile(url):
+@log_wrapper('Downloading', 1)
+def fetch_profile(url, name=''):
     req = urllib.request.Request(url=url, method='GET')
 
     req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
@@ -93,6 +93,7 @@ if __name__ == '__main__':
     # result = re.search(r'·\d(\.\d)?', '俄罗斯A·0.5')
     print(result, result[0])
     print(float([x for x in re.split(r'[^\d\.]', result[0]) if x!=''][-1]))
+    print(datetime.now().strftime('%Y%m%d-%H%M%S'))
     quit()
     '''
 
@@ -116,7 +117,7 @@ if __name__ == '__main__':
     for provider in provider_conf:
         if provider['expire'] > date.today():
             try:
-                data_yaml = fetch_profile(provider['url'])
+                data_yaml = fetch_profile(provider['url'], provider['name'])
             except:
                 continue
             data = yaml.safe_load(data_yaml)

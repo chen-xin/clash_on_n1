@@ -1,5 +1,5 @@
-# DOCKER_BUILDKIT=1 docker build . -t chen_x/clash_updater
-# DOCKER_BUILDKIT=1 docker build . --build-arg CN_MIRROR=1 -t chen_x/clash_updater # if you are in China mainland
+# DOCKER_BUILDKIT=1 docker build . -t chenxinaz/clash_updater
+# DOCKER_BUILDKIT=1 docker build . --build-arg CN_MIRROR=1 -t chenxinaz/clash_updater # if you are in China mainland
 
 FROM python:alpine
 
