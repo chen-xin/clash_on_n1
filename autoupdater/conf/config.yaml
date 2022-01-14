@@ -105,7 +105,7 @@ config_server:
   redir-port: 7892
   # resolv my own server
   hosts:
-     '+.xin.me': 192.168.211.1  
+     '+.xin.me': 192.168.11.1  
   # DNS 设置
   dns:
     enable: true
@@ -143,6 +143,8 @@ additional_rules:
   - GEOIP,FR,🎮 GameEU
   # tauri wow
   - GEOIP,HU,🎮 GameEU
+  # tauri wow
+  - GEOIP,NL,🎮 GameEU
 proxy-groups:
     # 138,164s/  - {"\?name"\?: \?"\?\([^"]\+\).\+/  - "\1"/g
     # 🧭
